@@ -1,85 +1,70 @@
-import path from "path";
-import { fileURLToPath } from "url";
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-app.use(express.static(path.join(__dirname, "public")));
 import express from "express";
 import { exec } from "child_process";
-import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 const port = process.env.PORT || 3000;
 
-// JSON body parse (10 MB limit)
-app.use(express.json({ limit: "10mb" }));
+app.use(express.json());
 
-// ---------------------------------------------
-// 1) Terminal Komut Sistemi (/exec)
-// ---------------------------------------------
+// === STATIC PANEL ===
+app.use(express.static(path.join(__dirname, "public")));
+
+// === TEST API ===
+app.get("/api/test", (req, res) => {
+  res.json({ status: "ok", cloud: "render" });
+});
+
+// === EXEC TERMINAL ===
 app.get("/exec", (req, res) => {
   const cmd = req.query.cmd;
 
-  if (!cmd) {
-    return res.json({ error: "cmd parameter required" });
-  }
+  if (!cmd) return res.json({ error: "cmd parameter required" });
 
   exec(cmd, { timeout: 20000 }, (error, stdout, stderr) => {
     res.json({
       cmd,
       error: error?.message || null,
       stdout,
-      stderr
+      stderr,
     });
   });
 });
 
-// ---------------------------------------------
-// 2) Dosya Yazma Sistemi (/writeFile)
-// AI → Cloud’a kod yazabilir
-// ---------------------------------------------
-app.post("/writeFile", (req, res) => {
-  const { path, content } = req.body;
-
-  if (!path || content === undefined) {
-    return res.json({ error: "path and content required" });
-  }
-
-  fs.writeFile(path, content, "utf8", (err) => {
-    if (err) {
-      return res.json({ error: err.message });
-    }
-    res.json({ success: true, path });
-  });
-});
-
-// ---------------------------------------------
-// 3) Dosya Okuma Sistemi (/readFile)
-// ---------------------------------------------
+// === READ FILE ===
 app.get("/readFile", (req, res) => {
-  const path = req.query.path;
+  const fs = await import("fs");
+  const pathFile = req.query.path;
 
-  if (!path) {
-    return res.json({ error: "path parameter required" });
+  if (!pathFile) return res.json({ error: "path required" });
+
+  try {
+    const content = fs.readFileSync(pathFile, "utf8");
+    res.json({ success: true, path: pathFile, content });
+  } catch (err) {
+    res.json({ error: err.message });
   }
-
-  fs.readFile(path, "utf8", (err, data) => {
-    if (err) {
-      return res.json({ error: err.message });
-    }
-    res.json({ success: true, path, content: data });
-  });
 });
 
-// ---------------------------------------------
-// Test endpoint
-// ---------------------------------------------
-app.get("/api/test", (req, res) => {
-  res.json({ status: "ok", cloud: "render" });
+// === WRITE FILE ===
+app.post("/writeFile", async (req, res) => {
+  const fs = await import("fs");
+  const { path: filePath, content } = req.body;
+
+  if (!filePath) return res.json({ error: "path required" });
+
+  try {
+    fs.writeFileSync(filePath, content);
+    res.json({ success: true, path: filePath });
+  } catch (err) {
+    res.json({ error: err.message });
+  }
 });
 
-// ---------------------------------------------
-// Start server
-// ---------------------------------------------
 app.listen(port, () => {
   console.log("Server running on port", port);
 });
