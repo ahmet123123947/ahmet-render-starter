@@ -1,1 +1,36 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<title>Ahmet • AI Cloud Panel</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
 
+<h1>Ahmet • AI Cloud Panel</h1>
+
+<div class="box">
+  <h2>Terminal</h2>
+  <input id="cmd" placeholder="Komut yaz (ör: ls -la)">
+  <button onclick="runCmd()">Çalıştır</button>
+  <pre id="terminal"></pre>
+</div>
+
+<div class="box">
+  <h2>Dosya Oku</h2>
+  <input id="readPath" placeholder="Dosya yolu (ör: server.js)">
+  <button onclick="readFile()">Oku</button>
+  <pre id="fileContent"></pre>
+</div>
+
+<div class="box">
+  <h2>Dosya Yaz</h2>
+  <input id="writePath" placeholder="Dosya yolu (ör: test.html)">
+  <textarea id="writeContent" rows="5" placeholder="İçerik..."></textarea>
+  <button onclick="writeFile()">Kaydet</button>
+  <pre id="writeResult"></pre>
+</div>
+
+<script src="panel.js"></script>
+</body>
+</html>
