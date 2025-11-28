@@ -79,3 +79,9 @@ app.post("/writeFile", (req, res) => {
 app.listen(port, () => {
   console.log("Server running on port", port);
 });
+app.get("/debug-static", (req, res) => {
+  res.json({
+    publicFolder: publicPath,
+    files: require("fs").readdirSync(publicPath)
+  });
+});
