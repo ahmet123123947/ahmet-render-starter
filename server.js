@@ -1,5 +1,6 @@
 import express from "express";
 import { exec } from "child_process";
+import { readFileSync, writeFileSync } from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 
@@ -11,18 +12,25 @@ const port = process.env.PORT || 3000;
 
 app.use(express.json());
 
-// === STATIC PANEL ===
-app.use(express.static(path.join(__dirname, "public")));
+// ------------------------------
+// PUBLIC PANEL SERVE (ÖNEMLİ)
+// ------------------------------
+const publicPath = path.join(__dirname, "public");
+console.log("Serving static from:", publicPath);
+app.use(express.static(publicPath));
 
-// === TEST API ===
+// ------------------------------
+// TEST ENDPOINT
+// ------------------------------
 app.get("/api/test", (req, res) => {
   res.json({ status: "ok", cloud: "render" });
 });
 
-// === EXEC TERMINAL ===
+// ------------------------------
+// EXEC (TERMINAL)
+// ------------------------------
 app.get("/exec", (req, res) => {
   const cmd = req.query.cmd;
-
   if (!cmd) return res.json({ error: "cmd parameter required" });
 
   exec(cmd, { timeout: 20000 }, (error, stdout, stderr) => {
@@ -35,36 +43,39 @@ app.get("/exec", (req, res) => {
   });
 });
 
-// === READ FILE ===
+// ------------------------------
+// READ FILE
+// ------------------------------
 app.get("/readFile", (req, res) => {
-  const fs = await import("fs");
-  const pathFile = req.query.path;
-
-  if (!pathFile) return res.json({ error: "path required" });
+  const p = req.query.path;
+  if (!p) return res.json({ error: "path required" });
 
   try {
-    const content = fs.readFileSync(pathFile, "utf8");
-    res.json({ success: true, path: pathFile, content });
+    const content = readFileSync(p, "utf8");
+    res.json({ success: true, path: p, content });
   } catch (err) {
     res.json({ error: err.message });
   }
 });
 
-// === WRITE FILE ===
-app.post("/writeFile", async (req, res) => {
-  const fs = await import("fs");
-  const { path: filePath, content } = req.body;
-
-  if (!filePath) return res.json({ error: "path required" });
+// ------------------------------
+// WRITE FILE
+// ------------------------------
+app.post("/writeFile", (req, res) => {
+  const { path: p, content } = req.body;
+  if (!p) return res.json({ error: "path required" });
 
   try {
-    fs.writeFileSync(filePath, content);
-    res.json({ success: true, path: filePath });
+    writeFileSync(p, content);
+    res.json({ success: true, path: p });
   } catch (err) {
     res.json({ error: err.message });
   }
 });
 
+// ------------------------------
+// SERVER START
+// ------------------------------
 app.listen(port, () => {
   console.log("Server running on port", port);
 });
