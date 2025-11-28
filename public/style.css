@@ -1,1 +1,40 @@
+body {
+  background: #0d1117;
+  color: #e6edf3;
+  font-family: Arial;
+  padding: 20px;
+}
+h1 {
+  color: #58a6ff;
+}
+.box {
+  background: #161b22;
+  border: 1px solid #30363d;
+  padding: 14px;
+  margin-bottom: 20px;
+}
+input, textarea {
+  width: 100%;
+  margin: 6px 0;
+  background: #0d1117;
+  color: #fff;
+  border: 1px solid #30363d;
+  padding: 8px;
+}
+button {
+  background: #238636;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  cursor: pointer;
+}
+button:hover {
+  background: #2ea043;
+}
+pre {
+  background: #0d1117;
+  border: 1px solid #30363d;
+  padding: 10px;
+  overflow-x: auto;
+}
 
